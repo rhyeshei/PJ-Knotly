@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard-layout dashboard-layout--editorial">
+    <aside class="dashboard-sidebar dashboard-sidebar--minimal">
+        <div class="dashboard-sidebar__inner">
+            <div class="dashboard-sidebar__brand">
+                <span class="brand-mark">K</span>
+                <div class="dashboard-sidebar__brand-copy">
+                    <span>Knotly</span>
+                    <small>Admin</small>
+                </div>
+            </div>
+
+            <div class="sidebar-action">
+                <a class="button button-primary" href="{% url 'knotly:page_create' %}">New Page</a>
+            </div>
+
+            <section class="dashboard-sidebar__section">
+                <p class="dashboard-sidebar__label">Main</p>
+                <nav class="dashboard-nav">
+                    <a class="dashboard-nav__link" href="{% url 'knotly:dashboard_home' %}">Dashboard</a>
+                    <a class="dashboard-nav__link" href="{% url 'knotly:page_manage' %}">Pages</a>
+                    <a class="dashboard-nav__link" href="{% url 'knotly:page_create' %}">Drafts</a>
+                    <a class="dashboard-nav__link" href="{% url 'knotly:page_manage' %}?status=needs_update">Review</a>
+                    <a class="dashboard-nav__link" href="{% url 'knotly:home' %}">Settings</a>
+                </nav>
+            </section>
+
+            <section class="dashboard-sidebar__section">
+                <p class="dashboard-sidebar__label">Workspace</p>
+                <nav class="dashboard-nav">
+                    <a class="dashboard-nav__link" href="{% url 'knotly:page_manage' %}?page_type=application">申請方法</a>
+                    <a class="dashboard-nav__link" href="{% url 'knotly:page_manage' %}?page_type=trouble">トラブル対応</a>
+                    <a class="dashboard-nav__link" href="{% url 'knotly:page_manage' %}?page_type=rule">社内ルール</a>
+                </nav>
+            </section>
+
+            <section class="dashboard-sidebar__section">
+                <p class="dashboard-sidebar__label">Favorites</p>
+                <nav class="dashboard-nav">
+                    <a class="dashboard-nav__link" href="{% url 'knotly:page_manage' %}">最近見たページ</a>
+                    <a class="dashboard-nav__link" href="{% url 'knotly:home' %}">よく使うページ</a>
+                </nav>
+            </section>
+        </div>
+    </aside>
+
+    <main class="dashboard-main dashboard-main--workspace">
+        {% block dashboard_content %}{% endblock %}
+    </main>
+</div>
+{% endblock %}

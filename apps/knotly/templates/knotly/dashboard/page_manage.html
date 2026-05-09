@@ -1,0 +1,109 @@
+{% extends "knotly/dashboard/dashboard_base.html" %}
+
+{% block title %}Knotly | Manage Pages{% endblock %}
+
+{% block dashboard_content %}
+<div class="workspace-topbar">
+    <div class="workspace-topbar__title">Pages</div>
+    <div class="workspace-topbar__meta">{{ pages|length }} items</div>
+    <div class="workspace-topbar__actions">
+        <a class="button button-secondary" href="{% url 'knotly:page_create' %}">New Page</a>
+    </div>
+</div>
+
+<section class="dashboard-page-header dashboard-page-header--tight">
+    <div>
+        <p class="eyebrow">Page Management</p>
+        <h1 class="page-title">ページ管理</h1>
+        <p class="page-description">一覧、検索、公開状況の確認を、フラットな管理ビューで行えます。</p>
+    </div>
+</section>
+
+<div class="manager-workspace">
+    <aside class="manager-rail">
+        <section class="rail-section">
+            <div class="section-header">
+                <p class="eyebrow">Filters</p>
+                <h2 class="section-title">絞り込み</h2>
+            </div>
+            <form class="rail-filter-form" method="get">
+                <div class="filter-bar__field filter-bar__field--search">
+                    <label for="manage-q">キーワード</label>
+                    <input id="manage-q" type="search" name="q" value="{{ filters.q }}">
+                </div>
+                <div class="filter-bar__field">
+                    <label for="manage-page-type">ページタイプ</label>
+                    <select id="manage-page-type" name="page_type">
+                        <option value="">すべて</option>
+                        {% for value, label in page_type_choices %}
+                            <option value="{{ value }}" {% if filters.page_type == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-bar__field">
+                    <label for="manage-category">カテゴリ</label>
+                    <select id="manage-category" name="category">
+                        <option value="">すべて</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}" {% if filters.category == category.id|stringformat:"s" %}selected{% endif %}>{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-bar__field">
+                    <label for="manage-status">ステータス</label>
+                    <select id="manage-status" name="status">
+                        <option value="">すべて</option>
+                        {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-bar__actions">
+                    <button class="button button-primary" type="submit">検索</button>
+                    <a class="button button-secondary" href="{% url 'knotly:page_manage' %}">リセット</a>
+                </div>
+            </form>
+        </section>
+    </aside>
+
+    <section class="manager-pane">
+        <section class="list-section list-section--flat">
+            <header class="list-section__header list-section__header--toolbar">
+                <div>
+                    <p class="eyebrow">Pages</p>
+                    <p class="list-toolbar__count">{{ pages|length }}件</p>
+                </div>
+            </header>
+
+            <div class="issue-list">
+                {% for page in pages %}
+                    <article class="issue-row">
+                        <div class="issue-row__type">
+                            <span class="status-pill">{{ page.get_page_type_display }}</span>
+                        </div>
+                        <div class="issue-row__main">
+                            <a class="issue-row__title" href="{% url 'knotly:page_edit' pk=page.pk %}">{{ page.title }}</a>
+                            <p class="issue-row__summary">{{ page.summary|default:"-" }}</p>
+                            <div class="issue-row__meta">
+                                <span>{{ page.category.name|default:"-" }}</span>
+                                <span>{{ page.owner_department.name|default:"-" }}</span>
+                                <span><code>{{ page.slug }}</code></span>
+                            </div>
+                        </div>
+                        <div class="issue-row__side">
+                            <span class="status-pill">{{ page.get_status_display }}</span>
+                            <span class="issue-row__date">{{ page.updated_at|date:"Y-m-d H:i" }}</span>
+                            <div class="admin-table__actions">
+                                <a href="{% url 'knotly:page_preview' pk=page.pk %}">Preview</a>
+                                <a href="{% url 'knotly:page_edit' pk=page.pk %}">Edit</a>
+                            </div>
+                        </div>
+                    </article>
+                {% empty %}
+                    <p class="empty-state">ページはまだありません。</p>
+                {% endfor %}
+            </div>
+        </section>
+    </section>
+</div>
+{% endblock %}

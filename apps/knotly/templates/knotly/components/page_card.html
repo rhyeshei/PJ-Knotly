@@ -1,0 +1,43 @@
+<article class="page-card page-row">
+    <div class="page-row__left">
+        <span class="badge">{{ page.get_page_type_display }}</span>
+    </div>
+
+    <div class="page-row__main">
+        <h3 class="page-row__title">
+            <a href="{% url 'knotly:page_detail' slug=page.slug %}">{{ page.title }}</a>
+        </h3>
+
+        {% if page.summary %}
+            <p class="page-row__summary">{{ page.summary }}</p>
+        {% endif %}
+
+        <div class="page-row__meta">
+            {% if page.category %}
+                <span class="page-row__meta-text">{{ page.category.name }}</span>
+            {% endif %}
+            {% if page.status and not public_card %}
+                <span class="page-row__meta-text">{{ page.get_status_display }}</span>
+            {% endif %}
+            {% for audience in page.target_audiences.all %}
+                <span class="tag">{{ audience.name }}</span>
+            {% endfor %}
+            {% for tag in page.tags.all %}
+                <span class="tag">{{ tag.name }}</span>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="page-row__side">
+        {% if page.owner_department %}
+            <span class="page-row__side-item">{{ page.owner_department.name }}</span>
+        {% endif %}
+        <span class="page-row__side-item">
+            {% if page.updated_at %}
+                {{ page.updated_at|date:"Y-m-d" }}
+            {% else %}
+                -
+            {% endif %}
+        </span>
+    </div>
+</article>

@@ -1,0 +1,56 @@
+{% extends "knotly/dashboard/dashboard_base.html" %}
+
+{% block title %}Knotly | New Page{% endblock %}
+
+{% block dashboard_content %}
+<div class="workspace-topbar">
+    <div class="workspace-topbar__title">New Page</div>
+    <div class="workspace-topbar__meta">Create record</div>
+    <div class="workspace-topbar__actions">
+        <a class="button button-secondary" href="{% url 'knotly:page_manage' %}">Back</a>
+    </div>
+</div>
+
+<section class="dashboard-page-header dashboard-page-header--tight">
+    <div>
+        <p class="eyebrow">New Page</p>
+        <h1 class="page-title">ページ新規作成</h1>
+        <p class="page-description">先に基本情報を作成し、その後にブロック内容を編集します。</p>
+    </div>
+</section>
+
+<form method="post">
+    {% csrf_token %}
+    <section class="editor-section editor-section--form">
+        <div class="section-header">
+            <p class="eyebrow">Metadata</p>
+            <h2 class="section-title">基本情報</h2>
+        </div>
+        <div class="editor-meta-stack">
+            {% for field in form %}
+                <div class="form-field">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <p class="form-help">{{ field.help_text }}</p>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <p class="form-error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if form.non_field_errors %}
+            {% for error in form.non_field_errors %}
+                <p class="form-error">{{ error }}</p>
+            {% endfor %}
+        {% endif %}
+
+        <div class="form-actions">
+            <button class="button button-primary" type="submit">作成して編集へ進む</button>
+            <a class="button button-secondary" href="{% url 'knotly:page_manage' %}">戻る</a>
+        </div>
+    </section>
+</form>
+{% endblock %}

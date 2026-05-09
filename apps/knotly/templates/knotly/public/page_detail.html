@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Knotly | {{ page.title }}{% endblock %}
+
+{% block content %}
+<div class="knowledge-detail-layout">
+    <article class="document-page document-page--reading">
+        <header class="document-header document-header--linear">
+            <div class="document-meta document-meta--top">
+                <span class="badge">{{ page.get_page_type_display }}</span>
+                {% if page.category %}
+                    <span class="document-meta__item">{{ page.category.name }}</span>
+                {% endif %}
+                <span class="document-meta__item">更新 {{ page.updated_at|date:"Y-m-d" }}</span>
+            </div>
+            <h1 class="page-title">{{ page.title }}</h1>
+
+            {% if page.summary %}
+                <p class="page-description">{{ page.summary }}</p>
+            {% endif %}
+        </header>
+
+        {% if page.primary_action %}
+            <section class="primary-action-box primary-action-box--document">
+                <p class="eyebrow">Primary Action</p>
+                <div>{{ page.primary_action|linebreaksbr }}</div>
+            </section>
+        {% endif %}
+
+        <div class="document-body document-body--sections">
+            {% for block in blocks %}
+                {% include "knotly/components/block_content.html" with block=block %}
+            {% empty %}
+                <p class="empty-state">表示できるブロックはありません。</p>
+            {% endfor %}
+        </div>
+    </article>
+
+    <aside class="document-aside">
+        <section class="aside-section">
+            <p class="eyebrow">Metadata</p>
+            <div class="metadata-list">
+                <div class="metadata-list__item">
+                    <span class="metadata-list__label">Page Type</span>
+                    <span class="metadata-list__value">{{ page.get_page_type_display }}</span>
+                </div>
+                <div class="metadata-list__item">
+                    <span class="metadata-list__label">Category</span>
+                    <span class="metadata-list__value">{{ page.category.name|default:"-" }}</span>
+                </div>
+                <div class="metadata-list__item">
+                    <span class="metadata-list__label">Owner</span>
+                    <span class="metadata-list__value">{{ page.owner_department.name|default:"-" }}</span>
+                </div>
+                <div class="metadata-list__item">
+                    <span class="metadata-list__label">Urgency</span>
+                    <span class="metadata-list__value">{{ page.get_urgency_display }}</span>
+                </div>
+                <div class="metadata-list__item">
+                    <span class="metadata-list__label">Updated At</span>
+                    <span class="metadata-list__value">{{ page.updated_at|date:"Y-m-d H:i" }}</span>
+                </div>
+                <div class="metadata-list__item">
+                    <span class="metadata-list__label">Published At</span>
+                    <span class="metadata-list__value">{{ page.published_at|date:"Y-m-d H:i"|default:"-" }}</span>
+                </div>
+                <div class="metadata-list__item">
+                    <span class="metadata-list__label">Slug</span>
+                    <span class="metadata-list__value">{{ page.slug }}</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="aside-section">
+            <p class="eyebrow">Targets</p>
+            <div class="document-context__value">
+                {% for audience in page.target_audiences.all %}
+                    <span class="tag">{{ audience.name }}</span>
+                {% empty %}
+                    <span class="tag">指定なし</span>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="aside-section">
+            <p class="eyebrow">Tags</p>
+            <div class="document-context__value">
+                {% for tag in page.tags.all %}
+                    <span class="tag">{{ tag.name }}</span>
+                {% empty %}
+                    <span class="tag">指定なし</span>
+                {% endfor %}
+            </div>
+        </section>
+    </aside>
+</div>
+{% endblock %}

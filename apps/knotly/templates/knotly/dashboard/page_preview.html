@@ -1,0 +1,86 @@
+{% extends "knotly/dashboard/dashboard_base.html" %}
+
+{% block title %}Knotly | Preview {{ page.title }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="workspace-topbar">
+    <div class="workspace-topbar__title">Preview</div>
+    <div class="workspace-topbar__meta">{{ page.get_status_display }}</div>
+    <div class="workspace-topbar__actions">
+        <a class="button button-secondary" href="{% url 'knotly:page_edit' pk=page.pk %}">Back to Edit</a>
+    </div>
+</div>
+
+<section class="dashboard-page-header dashboard-page-header--tight">
+    <div>
+        <p class="eyebrow">Preview</p>
+        <h1 class="page-title">{{ page.title }}</h1>
+        <p class="page-description">社員向けページの見え方を確認できます。</p>
+    </div>
+</section>
+
+<div class="knowledge-detail-layout">
+    <div class="document-page document-page--reading">
+        <header class="document-header document-header--linear">
+            <div class="document-meta">
+                <span class="badge">{{ page.get_page_type_display }}</span>
+                {% if page.category %}
+                    <span class="document-meta__item">{{ page.category.name }}</span>
+                {% endif %}
+                <span class="document-meta__item">{{ page.get_status_display }}</span>
+            </div>
+            <h2 class="section-title">{{ page.title }}</h2>
+            {% if page.summary %}
+                <p class="page-description">{{ page.summary }}</p>
+            {% endif %}
+        </header>
+
+        {% if page.primary_action %}
+            <section class="primary-action-box primary-action-box--document">
+                <p class="eyebrow">Primary Action</p>
+                <div>{{ page.primary_action|linebreaksbr }}</div>
+            </section>
+        {% endif %}
+
+        <div class="document-body document-body--sections">
+            {% for block in blocks %}
+                {% include "knotly/components/block_content.html" with block=block %}
+            {% empty %}
+                <p class="empty-state">表示できるブロックはありません。</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <aside class="document-aside">
+        <section class="aside-section">
+            <p class="eyebrow">Metadata</p>
+            <div class="metadata-list">
+                <div class="metadata-list__item">
+                    <span class="metadata-list__label">Status</span>
+                    <span class="metadata-list__value">{{ page.get_status_display }}</span>
+                </div>
+                <div class="metadata-list__item">
+                    <span class="metadata-list__label">Page Type</span>
+                    <span class="metadata-list__value">{{ page.get_page_type_display }}</span>
+                </div>
+                <div class="metadata-list__item">
+                    <span class="metadata-list__label">Category</span>
+                    <span class="metadata-list__value">{{ page.category.name|default:"-" }}</span>
+                </div>
+                <div class="metadata-list__item">
+                    <span class="metadata-list__label">Owner</span>
+                    <span class="metadata-list__value">{{ page.owner_department.name|default:"-" }}</span>
+                </div>
+                <div class="metadata-list__item">
+                    <span class="metadata-list__label">Urgency</span>
+                    <span class="metadata-list__value">{{ page.get_urgency_display }}</span>
+                </div>
+                <div class="metadata-list__item">
+                    <span class="metadata-list__label">Slug</span>
+                    <span class="metadata-list__value">{{ page.slug }}</span>
+                </div>
+            </div>
+        </section>
+    </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "knotly/dashboard/dashboard_base.html" %}
+
+{% block title %}Knotly | Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<div class="workspace-topbar">
+    <div class="workspace-topbar__title">Dashboard</div>
+    <div class="workspace-topbar__meta">{{ published_count }} published</div>
+    <div class="workspace-topbar__actions">
+        <a class="button button-secondary" href="{% url 'knotly:page_create' %}">New Page</a>
+    </div>
+</div>
+
+<section class="dashboard-page-header dashboard-page-header--tight">
+    <div>
+        <p class="eyebrow">Overview</p>
+        <h1 class="page-title">管理ダッシュボード</h1>
+        <p class="page-description">公開状況と主要導線を、作業領域を優先した密度で整理しています。</p>
+    </div>
+    <div class="header-actions">
+        <a class="button button-primary" href="{% url 'knotly:page_create' %}">新規ページ作成</a>
+        <a class="button button-secondary" href="{% url 'knotly:page_manage' %}">ページ管理へ</a>
+    </div>
+</section>
+
+<section class="workspace-section">
+    <div class="stat-strip">
+        <article class="stat-chip">
+            <span class="stat-chip__label">Published</span>
+            <strong class="stat-chip__value">{{ published_count }}</strong>
+        </article>
+        <article class="stat-chip">
+            <span class="stat-chip__label">Draft</span>
+            <strong class="stat-chip__value">{{ draft_count }}</strong>
+        </article>
+        <article class="stat-chip">
+            <span class="stat-chip__label">Needs Update</span>
+            <strong class="stat-chip__value">{{ needs_update_count }}</strong>
+        </article>
+    </div>
+</section>
+
+<section class="list-section list-section--flat">
+    <header class="list-section__header">
+        <div>
+            <p class="eyebrow">Actions</p>
+            <h2 class="section-title">よく使う操作</h2>
+        </div>
+    </header>
+    <div class="dashboard-note-list">
+        <a class="dashboard-note-row" href="{% url 'knotly:page_manage' %}">
+            <span class="dashboard-note-row__title">ページ管理へ移動</span>
+            <span class="dashboard-note-row__meta">一覧、検索、編集、公開状況の確認</span>
+        </a>
+        <a class="dashboard-note-row" href="{% url 'knotly:page_create' %}">
+            <span class="dashboard-note-row__title">新しいページを作成</span>
+            <span class="dashboard-note-row__meta">ページタイプに応じた初期ブロックを生成</span>
+        </a>
+    </div>
+</section>
+{% endblock %}
