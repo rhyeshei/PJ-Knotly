@@ -8,41 +8,15 @@
     <link rel="stylesheet" href="{% static 'css/knotly.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
-<body class="knotly-body">
-    <div class="site-frame">
-        <header class="site-header">
-            <div class="site-header__inner">
-                <div class="site-header__cluster">
-                    <a class="brand" href="{% url 'knotly:home' %}">
-                        <span class="brand-mark">K</span>
-                        <span class="brand-lockup">
-                            <span class="brand-name">Knotly</span>
-                            <span class="brand-subtitle">Internal knowledge</span>
-                        </span>
-                    </a>
-                    <p class="site-header__context">Structured pages for internal operations</p>
-                </div>
-                <nav class="site-nav">
-                    <a class="site-nav__link" href="{% url 'knotly:home' %}">Home</a>
-                    <a class="site-nav__link" href="{% url 'knotly:page_list' %}">Pages</a>
-                    <a class="site-nav__link" href="{% url 'knotly:dashboard_home' %}">Dashboard</a>
-                </nav>
-            </div>
-        </header>
-
-        <main class="site-main">
-            {% if messages %}
-                <div class="message-container">
-                    {% for message in messages %}
-                        <div class="message {{ message.tags }}">{{ message }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-
-            {% block content %}{% endblock %}
-        </main>
-    </div>
-
+<body>
+    {% if messages %}
+        <div class="flash-stack">
+            {% for message in messages %}
+                <div class="flash {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% block content %}{% endblock %}
     {% block extra_js %}{% endblock %}
 </body>
 </html>

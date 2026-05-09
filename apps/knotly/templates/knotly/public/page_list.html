@@ -1,80 +1,115 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Knotly | Pages{% endblock %}
 
 {% block content %}
-<div class="knowledge-layout knowledge-layout--list">
-    <aside class="knowledge-rail">
-        <section class="rail-section">
-            <div class="section-header">
-                <p class="eyebrow">Filters</p>
-                <h2 class="section-title">絞り込み</h2>
-            </div>
-            <form class="rail-filter-form" method="get">
-                <div class="filter-bar__field">
-                    <label for="filter-q">キーワード</label>
-                    <input id="filter-q" type="search" name="q" value="{{ filters.q }}" placeholder="タイトル、概要、タグで検索">
-                </div>
-                <div class="filter-bar__field">
-                    <label for="filter-page-type">ページタイプ</label>
-                    <select id="filter-page-type" name="page_type">
-                        <option value="">すべて</option>
-                        {% for value, label in page_type_choices %}
-                            <option value="{{ value }}" {% if filters.page_type == value %}selected{% endif %}>{{ label }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="filter-bar__field">
-                    <label for="filter-category">カテゴリ</label>
-                    <select id="filter-category" name="category">
-                        <option value="">すべて</option>
-                        {% for category in categories %}
-                            <option value="{{ category.id }}" {% if filters.category == category.id|stringformat:"s" %}selected{% endif %}>{{ category.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="filter-bar__field">
-                    <label for="filter-target">対象者</label>
-                    <select id="filter-target" name="target">
-                        <option value="">すべて</option>
-                        {% for target in target_audiences %}
-                            <option value="{{ target.id }}" {% if filters.target == target.id|stringformat:"s" %}selected{% endif %}>{{ target.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="filter-bar__field">
-                    <label for="filter-tag">タグ</label>
-                    <select id="filter-tag" name="tag">
-                        <option value="">すべて</option>
-                        {% for tag in tags %}
-                            <option value="{{ tag.id }}" {% if filters.tag == tag.id|stringformat:"s" %}selected{% endif %}>{{ tag.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="filter-bar__actions">
-                    <button class="button button-primary" type="submit">絞り込む</button>
-                    <a class="button button-secondary" href="{% url 'knotly:page_list' %}">リセット</a>
+<div class="app">
+    <aside class="sidebar">
+        <div class="workspace-header">
+            <div class="avatar">K</div>
+            <div class="workspace-name">Knotly</div>
+            <span>⌄</span>
+            <a class="sidebar-icon-button" href="{% url 'knotly:home' %}" aria-label="ホーム">
+                <img class="sidebar-icon-image" src="{% static 'icons/icon-Home.svg' %}" alt="">
+            </a>
+            <a class="sidebar-icon-button" href="{% url 'knotly:dashboard_home' %}" aria-label="管理メニュー">
+                <img class="sidebar-icon-image" src="{% static 'icons/icon-Pencil.svg' %}" alt="">
+            </a>
+        </div>
+
+        <div class="sidebar-section">
+            <a class="sidebar-link" href="{% url 'knotly:home' %}">
+                <span class="icon">○</span>
+                ホーム
+            </a>
+            <a class="sidebar-link active" href="{% url 'knotly:page_list' %}">
+                <span class="icon">▱</span>
+                すべての記事
+            </a>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-title">絞り込み</div>
+            <form class="filter-form" method="get">
+                <label for="filter-q">キーワード</label>
+                <input id="filter-q" type="search" name="q" value="{{ filters.q }}" placeholder="タイトル、概要、タグで検索">
+
+                <label for="filter-page-type">ページタイプ</label>
+                <select id="filter-page-type" name="page_type">
+                    <option value="">すべて</option>
+                    {% for value, label in page_type_choices %}
+                        <option value="{{ value }}" {% if filters.page_type == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+
+                <label for="filter-category">カテゴリ</label>
+                <select id="filter-category" name="category">
+                    <option value="">すべて</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}" {% if filters.category == category.id|stringformat:"s" %}selected{% endif %}>{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+
+                <label for="filter-target">対象者</label>
+                <select id="filter-target" name="target">
+                    <option value="">すべて</option>
+                    {% for target in target_audiences %}
+                        <option value="{{ target.id }}" {% if filters.target == target.id|stringformat:"s" %}selected{% endif %}>{{ target.name }}</option>
+                    {% endfor %}
+                </select>
+
+                <label for="filter-tag">タグ</label>
+                <select id="filter-tag" name="tag">
+                    <option value="">すべて</option>
+                    {% for tag in tags %}
+                        <option value="{{ tag.id }}" {% if filters.tag == tag.id|stringformat:"s" %}selected{% endif %}>{{ tag.name }}</option>
+                    {% endfor %}
+                </select>
+
+                <div class="filter-form__actions">
+                    <button class="button-primary-inline" type="submit">絞り込む</button>
+                    <a class="button-secondary-inline" href="{% url 'knotly:page_list' %}">リセット</a>
                 </div>
             </form>
-        </section>
+        </div>
     </aside>
 
-    <section class="knowledge-pane">
-        <header class="page-header page-header--compact">
-            <p class="eyebrow">Knowledge Pages</p>
-            <h1 class="page-title">ページ一覧</h1>
-            <p class="page-description">検索とフィルタで、必要なページだけを素早く絞り込めます。</p>
+    <main class="main">
+        <header class="topbar">
+            <div class="page-title">
+                <span class="page-title-icon"></span>
+                <span>すべての記事</span>
+                <span class="star">☆</span>
+            </div>
+
+            <div class="topbar-actions">
+                <a class="round-button" href="{% url 'knotly:home' %}" aria-label="ホーム">
+                    <img class="sidebar-icon-image" src="{% static 'icons/icon-Home.svg' %}" alt="">
+                </a>
+                <a class="round-button" href="{% url 'knotly:dashboard_home' %}" aria-label="管理メニュー">
+                    <img class="sidebar-icon-image" src="{% static 'icons/icon-Pencil.svg' %}" alt="">
+                </a>
+            </div>
         </header>
 
-        <section class="list-section list-section--flat">
-            <header class="list-section__header list-section__header--toolbar">
-                <div>
-                    <p class="eyebrow">Results</p>
-                    <p class="list-toolbar__count">{{ pages|length }}件</p>
-                </div>
-            </header>
+        <section class="content">
+            <div class="filters">
+                <a class="pill {% if not filters.q and not filters.page_type and not filters.category and not filters.target and not filters.tag %}active{% endif %}" href="{% url 'knotly:page_list' %}">すべて</a>
+                <a class="pill" href="{% url 'knotly:home' %}">最近更新</a>
+            </div>
 
-            <div class="page-card-list page-card-list--rows">
+            <div class="issue-panel">
+                <div class="group-header">
+                    <div class="chevron">▼</div>
+                    <div class="group-left">
+                        <span class="status-circle"></span>
+                        <span>Pages</span>
+                        <span class="group-count">{{ pages|length }}</span>
+                    </div>
+                    <div class="plus">＋</div>
+                </div>
+
                 {% for page in pages %}
                     {% include "knotly/components/page_card.html" with page=page public_card=True %}
                 {% empty %}
@@ -82,6 +117,6 @@
                 {% endfor %}
             </div>
         </section>
-    </section>
+    </main>
 </div>
 {% endblock %}

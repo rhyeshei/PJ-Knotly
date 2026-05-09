@@ -1,61 +1,105 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Knotly | Home{% endblock %}
 
 {% block content %}
-<div class="knowledge-layout knowledge-layout--home">
-    <aside class="knowledge-rail">
-        <section class="rail-section">
-            <!-- <p class="eyebrow">Search</p> -->
-            <form class="search-box search-box--rail" action="{% url 'knotly:page_list' %}" method="get">
+<div class="app">
+    <aside class="sidebar">
+        <div class="workspace-header">
+            <div class="avatar">K</div>
+            <div class="workspace-name">Knotly</div>
+            <span>⌄</span>
+            <a class="sidebar-icon-button" href="{% url 'knotly:page_list' %}" aria-label="検索">
+                <img class="sidebar-icon-image" src="{% static 'icons/icon-search.svg' %}" alt="">
+            </a>
+            <a class="sidebar-icon-button" href="{% url 'knotly:dashboard_home' %}" aria-label="管理メニュー">
+                <img class="sidebar-icon-image" src="{% static 'icons/icon-Pencil.svg' %}" alt="">
+            </a>
+        </div>
+
+        <div class="sidebar-section">
+            <a class="sidebar-link active" href="{% url 'knotly:home' %}">
+                <span class="icon">○</span>
+                ホーム
+            </a>
+            <a class="sidebar-link" href="{% url 'knotly:page_list' %}">
+                <span class="icon">▱</span>
+                すべての記事
+            </a>
+            <a class="sidebar-link" href="{% url 'knotly:dashboard_home' %}">
+                <span class="icon">◇</span>
+                管理メニュー
+            </a>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-title">検索</div>
+            <form class="search-stack" action="{% url 'knotly:page_list' %}" method="get">
                 <label class="sr-only" for="home-search">検索</label>
                 <input id="home-search" type="search" name="q" placeholder="キーワードで検索">
-                <button class="button button-primary" type="submit">検索</button>
+                <button class="button-primary-inline" type="submit">検索</button>
             </form>
-        </section>
+        </div>
 
-        <section class="rail-section">
-            <!-- <p class="eyebrow">Intent</p> -->
-            <h2 class="section-title">目的から探す</h2>
-            <div class="rail-link-list">
-                {% for intent in intent_links %}
-                    <a class="rail-link-row" href="{% url 'knotly:page_list' %}?page_type={{ intent.page_type }}">
-                        <span>{{ intent.label }}</span>
-                    </a>
-                {% endfor %}
-            </div>
-        </section>
+        <div class="sidebar-section">
+            <div class="sidebar-title">目的から探す</div>
+            {% for intent in intent_links %}
+                <a class="sidebar-link" href="{% url 'knotly:page_list' %}?page_type={{ intent.page_type }}">
+                    <span class="icon">→</span>
+                    {{ intent.label }}
+                </a>
+            {% endfor %}
+        </div>
 
-        <section class="rail-section">
-            <!-- <p class="eyebrow">Categories</p> -->
-            <h2 class="section-title">カテゴリ</h2>
-            <div class="rail-link-list">
-                {% for category in categories %}
-                    <a class="rail-link-row" href="{% url 'knotly:page_list' %}?category={{ category.id }}">
-                        <span>{{ category.name }}</span>
-                    </a>
-                {% empty %}
-                    <p class="empty-state">カテゴリはまだありません。</p>
-                {% endfor %}
-            </div>
-        </section>
+        <div class="sidebar-section">
+            <div class="sidebar-title">カテゴリ</div>
+            {% for category in categories %}
+                <a class="sidebar-link" href="{% url 'knotly:page_list' %}?category={{ category.id }}">
+                    <span class="icon">#</span>
+                    {{ category.name }}
+                </a>
+            {% empty %}
+                <p class="sidebar-empty">カテゴリはまだありません。</p>
+            {% endfor %}
+        </div>
     </aside>
 
-    <section class="knowledge-pane">
-        <header class="page-header page-header--compact">
-            <p class="eyebrow">Workspace</p>
-            <h1 class="page-title">社内ナレッジを、必要な粒度で見つける。</h1>
-            <p class="page-description">申請方法、トラブル対応、社内ルールを、構造を崩さずに整理したナレッジベースです。</p>
+    <main class="main">
+        <header class="topbar">
+            <div class="page-title">
+                <span class="page-title-icon"></span>
+                <span>ナレッジ一覧</span>
+                <span class="star">☆</span>
+            </div>
+
+            <div class="topbar-actions">
+                <a class="round-button" href="{% url 'knotly:page_list' %}" aria-label="検索">
+                    <img class="sidebar-icon-image" src="{% static 'icons/icon-search.svg' %}" alt="">
+                </a>
+                <a class="round-button" href="{% url 'knotly:dashboard_home' %}" aria-label="管理メニュー">
+                    <img class="sidebar-icon-image" src="{% static 'icons/icon-Pencil.svg' %}" alt="">
+                </a>
+            </div>
         </header>
 
-        <section class="list-section">
-            <header class="list-section__header">
-                <div>
-                    <p class="eyebrow">Recently Updated</p>
-                    <h2 class="section-title">最近更新されたページ</h2>
+        <section class="content">
+            <div class="filters">
+                <a class="pill active" href="{% url 'knotly:home' %}">最近更新</a>
+                <a class="pill" href="{% url 'knotly:page_list' %}">すべて</a>
+            </div>
+
+            <div class="issue-panel">
+                <div class="group-header">
+                    <div class="chevron">▼</div>
+                    <div class="group-left">
+                        <span class="status-circle"></span>
+                        <span>Recently updated</span>
+                        <span class="group-count">{{ recent_pages|length }}</span>
+                    </div>
+                    <div class="plus">＋</div>
                 </div>
-            </header>
-            <div class="page-card-list page-card-list--rows">
+
                 {% for page in recent_pages %}
                     {% include "knotly/components/page_card.html" with page=page public_card=True %}
                 {% empty %}
@@ -63,6 +107,6 @@
                 {% endfor %}
             </div>
         </section>
-    </section>
+    </main>
 </div>
 {% endblock %}

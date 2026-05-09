@@ -1,97 +1,111 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Knotly | {{ page.title }}{% endblock %}
 
 {% block content %}
-<div class="knowledge-detail-layout">
-    <article class="document-page document-page--reading">
-        <header class="document-header document-header--linear">
-            <div class="document-meta document-meta--top">
-                <span class="badge">{{ page.get_page_type_display }}</span>
-                {% if page.category %}
-                    <span class="document-meta__item">{{ page.category.name }}</span>
-                {% endif %}
-                <span class="document-meta__item">更新 {{ page.updated_at|date:"Y-m-d" }}</span>
-            </div>
-            <h1 class="page-title">{{ page.title }}</h1>
+<div class="app">
+    <aside class="sidebar">
+        <div class="workspace-header">
+            <div class="avatar">K</div>
+            <div class="workspace-name">Knotly</div>
+            <span>⌄</span>
+            <a class="sidebar-icon-button" href="{% url 'knotly:page_list' %}" aria-label="検索">
+                <img class="sidebar-icon-image" src="{% static 'icons/icon-search.svg' %}" alt="">
+            </a>
+            <a class="sidebar-icon-button" href="{% url 'knotly:dashboard_home' %}" aria-label="管理メニュー">
+                <img class="sidebar-icon-image" src="{% static 'icons/icon-Pencil.svg' %}" alt="">
+            </a>
+        </div>
 
-            {% if page.summary %}
-                <p class="page-description">{{ page.summary }}</p>
-            {% endif %}
+        <div class="sidebar-section">
+            <a class="sidebar-link" href="{% url 'knotly:home' %}"><span class="icon">○</span>ホーム</a>
+            <a class="sidebar-link" href="{% url 'knotly:page_list' %}"><span class="icon">▱</span>すべての記事</a>
+            <a class="sidebar-link active" href="{% url 'knotly:page_detail' slug=page.slug %}"><span class="icon">◇</span>{{ page.title|truncatechars:14 }}</a>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div class="page-title">
+                <span class="page-title-icon"></span>
+                <span>{{ page.title }}</span>
+                <span class="star">☆</span>
+            </div>
+
+            <div class="topbar-actions">
+                <a class="round-button" href="{% url 'knotly:page_list' %}">←</a>
+                <a class="round-button" href="{% url 'knotly:dashboard_home' %}" aria-label="管理メニュー">
+                    <img class="sidebar-icon-image" src="{% static 'icons/icon-Pencil.svg' %}" alt="">
+                </a>
+            </div>
         </header>
 
-        {% if page.primary_action %}
-            <section class="primary-action-box primary-action-box--document">
-                <p class="eyebrow">Primary Action</p>
-                <div>{{ page.primary_action|linebreaksbr }}</div>
-            </section>
-        {% endif %}
+        <section class="detail-content">
+            <article class="detail-main">
+                <div class="document-meta">
+                    <span class="mini-badge">{{ page.get_page_type_display }}</span>
+                    {% if page.category %}
+                        <span class="document-meta__item">{{ page.category.name }}</span>
+                    {% endif %}
+                    <span class="document-meta__item">更新 {{ page.updated_at|date:"Y-m-d" }}</span>
+                </div>
+                <h1 class="detail-title">{{ page.title }}</h1>
 
-        <div class="document-body document-body--sections">
-            {% for block in blocks %}
-                {% include "knotly/components/block_content.html" with block=block %}
-            {% empty %}
-                <p class="empty-state">表示できるブロックはありません。</p>
-            {% endfor %}
-        </div>
-    </article>
+                {% if page.summary %}
+                    <p class="detail-summary">{{ page.summary }}</p>
+                {% endif %}
 
-    <aside class="document-aside">
-        <section class="aside-section">
-            <p class="eyebrow">Metadata</p>
-            <div class="metadata-list">
-                <div class="metadata-list__item">
-                    <span class="metadata-list__label">Page Type</span>
-                    <span class="metadata-list__value">{{ page.get_page_type_display }}</span>
+                {% if page.primary_action %}
+                    <section class="detail-callout">
+                        <div class="sidebar-title">まず確認すること</div>
+                        <div>{{ page.primary_action|linebreaksbr }}</div>
+                    </section>
+                {% endif %}
+
+                <div class="document-body">
+                    {% for block in blocks %}
+                        {% include "knotly/components/block_content.html" with block=block %}
+                    {% empty %}
+                        <p class="empty-state">表示できるブロックはありません。</p>
+                    {% endfor %}
                 </div>
-                <div class="metadata-list__item">
-                    <span class="metadata-list__label">Category</span>
-                    <span class="metadata-list__value">{{ page.category.name|default:"-" }}</span>
-                </div>
-                <div class="metadata-list__item">
-                    <span class="metadata-list__label">Owner</span>
-                    <span class="metadata-list__value">{{ page.owner_department.name|default:"-" }}</span>
-                </div>
-                <div class="metadata-list__item">
-                    <span class="metadata-list__label">Urgency</span>
-                    <span class="metadata-list__value">{{ page.get_urgency_display }}</span>
-                </div>
-                <div class="metadata-list__item">
-                    <span class="metadata-list__label">Updated At</span>
-                    <span class="metadata-list__value">{{ page.updated_at|date:"Y-m-d H:i" }}</span>
-                </div>
-                <div class="metadata-list__item">
-                    <span class="metadata-list__label">Published At</span>
-                    <span class="metadata-list__value">{{ page.published_at|date:"Y-m-d H:i"|default:"-" }}</span>
-                </div>
-                <div class="metadata-list__item">
-                    <span class="metadata-list__label">Slug</span>
-                    <span class="metadata-list__value">{{ page.slug }}</span>
-                </div>
-            </div>
+            </article>
+
+            <aside class="detail-aside">
+                <section class="meta-section">
+                    <div class="sidebar-title">ページ情報</div>
+                    <div class="meta-row"><span>Page Type</span><strong>{{ page.get_page_type_display }}</strong></div>
+                    <div class="meta-row"><span>Category</span><strong>{{ page.category.name|default:"-" }}</strong></div>
+                    <div class="meta-row"><span>Owner</span><strong>{{ page.owner_department.name|default:"-" }}</strong></div>
+                    <div class="meta-row"><span>Urgency</span><strong>{{ page.get_urgency_display }}</strong></div>
+                    <div class="meta-row"><span>Updated</span><strong>{{ page.updated_at|date:"Y-m-d H:i" }}</strong></div>
+                    <div class="meta-row"><span>Slug</span><strong>{{ page.slug }}</strong></div>
+                </section>
+
+                <section class="meta-section">
+                    <div class="sidebar-title">対象者</div>
+                    <div class="meta-tags">
+                        {% for audience in page.target_audiences.all %}
+                            <span class="mini-badge">{{ audience.name }}</span>
+                        {% empty %}
+                            <span class="mini-badge">指定なし</span>
+                        {% endfor %}
+                    </div>
+                </section>
+
+                <section class="meta-section">
+                    <div class="sidebar-title">タグ</div>
+                    <div class="meta-tags">
+                        {% for tag in page.tags.all %}
+                            <span class="mini-badge">{{ tag.name }}</span>
+                        {% empty %}
+                            <span class="mini-badge">指定なし</span>
+                        {% endfor %}
+                    </div>
+                </section>
+            </aside>
         </section>
-
-        <section class="aside-section">
-            <p class="eyebrow">Targets</p>
-            <div class="document-context__value">
-                {% for audience in page.target_audiences.all %}
-                    <span class="tag">{{ audience.name }}</span>
-                {% empty %}
-                    <span class="tag">指定なし</span>
-                {% endfor %}
-            </div>
-        </section>
-
-        <section class="aside-section">
-            <p class="eyebrow">Tags</p>
-            <div class="document-context__value">
-                {% for tag in page.tags.all %}
-                    <span class="tag">{{ tag.name }}</span>
-                {% empty %}
-                    <span class="tag">指定なし</span>
-                {% endfor %}
-            </div>
-        </section>
-    </aside>
+    </main>
 </div>
 {% endblock %}
