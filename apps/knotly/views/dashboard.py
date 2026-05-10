@@ -1,10 +1,10 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Max, Q
 from django.http import HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404, redirect, render
 
+from apps.knotly.decorators import knotly_admin_required
 from apps.knotly.forms import PageForm, get_block_form_class
 from apps.knotly.models import Block, BlockDefinition, Category, Page
 from apps.knotly.services import create_page_with_default_blocks, get_default_content
@@ -28,7 +28,7 @@ def build_block_forms(blocks, data=None):
     return block_entries
 
 
-@login_required
+@knotly_admin_required
 def dashboard_home(request):
     context = {
         'published_count': Page.objects.filter(status=Page.Status.PUBLISHED).count(),
@@ -38,7 +38,7 @@ def dashboard_home(request):
     return render(request, 'knotly/dashboard/dashboard_home.html', context)
 
 
-@login_required
+@knotly_admin_required
 def page_manage(request):
     pages = Page.objects.select_related('category', 'owner_department').prefetch_related(
         'tags',
@@ -82,7 +82,7 @@ def page_manage(request):
     return render(request, 'knotly/dashboard/page_manage.html', context)
 
 
-@login_required
+@knotly_admin_required
 def page_create(request):
     if request.method == 'POST':
         form = PageForm(request.POST)
@@ -109,7 +109,7 @@ def page_create(request):
     )
 
 
-@login_required
+@knotly_admin_required
 def page_edit(request, pk):
     page = get_object_or_404(Page, pk=pk)
     blocks = page.blocks.filter(is_visible=True).select_related('block_definition').order_by(
@@ -144,7 +144,7 @@ def page_edit(request, pk):
     )
 
 
-@login_required
+@knotly_admin_required
 def page_preview(request, pk):
     page = get_object_or_404(Page.objects.select_related('category', 'owner_department'), pk=pk)
     blocks = page.blocks.filter(is_visible=True).select_related('block_definition').order_by(
@@ -162,7 +162,7 @@ def page_preview(request, pk):
     )
 
 
-@login_required
+@knotly_admin_required
 def block_add(request, page_pk):
     page = get_object_or_404(Page, pk=page_pk)
     existing_definition_ids = list(
@@ -201,7 +201,7 @@ def block_add(request, page_pk):
     )
 
 
-@login_required
+@knotly_admin_required
 def block_delete(request, block_pk):
     if request.method != 'POST':
         return HttpResponseNotAllowed(['POST'])
@@ -218,7 +218,7 @@ def block_delete(request, block_pk):
     return redirect('knotly:page_edit', pk=block.page_id)
 
 
-@login_required
+@knotly_admin_required
 def block_move_up(request, block_pk):
     if request.method != 'POST':
         return HttpResponseNotAllowed(['POST'])
@@ -241,7 +241,7 @@ def block_move_up(request, block_pk):
     return redirect('knotly:page_edit', pk=block.page_id)
 
 
-@login_required
+@knotly_admin_required
 def block_move_down(request, block_pk):
     if request.method != 'POST':
         return HttpResponseNotAllowed(['POST'])

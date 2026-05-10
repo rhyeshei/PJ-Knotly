@@ -9,13 +9,14 @@
         <div class="workspace-header">
             <div class="avatar">K</div>
             <div class="workspace-name">Knotly</div>
-            <span>⌄</span>
             <a class="sidebar-icon-button" href="{% url 'knotly:page_list' %}" aria-label="検索">
                 <img class="sidebar-icon-image" src="{% static 'icons/icon-search.svg' %}" alt="">
             </a>
-            <a class="sidebar-icon-button" href="{% url 'knotly:dashboard_home' %}" aria-label="管理メニュー">
-                <img class="sidebar-icon-image" src="{% static 'icons/icon-Pencil.svg' %}" alt="">
-            </a>
+            {% if knotly_can_access_dashboard %}
+                <a class="sidebar-icon-button" href="{% url 'knotly:dashboard_home' %}" aria-label="管理メニュー">
+                    <img class="sidebar-icon-image" src="{% static 'icons/icon-Pencil.svg' %}" alt="">
+                </a>
+            {% endif %}
         </div>
 
         <div class="sidebar-section">
@@ -35,9 +36,11 @@
 
             <div class="topbar-actions">
                 <a class="round-button" href="{% url 'knotly:page_list' %}">←</a>
-                <a class="round-button" href="{% url 'knotly:dashboard_home' %}" aria-label="管理メニュー">
-                    <img class="sidebar-icon-image" src="{% static 'icons/icon-Pencil.svg' %}" alt="">
-                </a>
+                {% if knotly_can_access_dashboard %}
+                    <a class="round-button" href="{% url 'knotly:dashboard_home' %}" aria-label="管理メニュー">
+                        <img class="sidebar-icon-image" src="{% static 'icons/icon-Pencil.svg' %}" alt="">
+                    </a>
+                {% endif %}
             </div>
         </header>
 

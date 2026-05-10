@@ -125,6 +125,40 @@ python manage.py runserver
 
 起動後、ブラウザで `http://127.0.0.1:8000/` にアクセスしてください。
 
+## 管理画面に入る方法
+
+Knotly には、用途の異なる 2 種類の管理画面があります。
+
+### 1. Knotly 管理画面
+
+通常のページ作成・編集・プレビューは、Knotly 独自の管理画面 `/dashboard/` で行います。
+
+手順:
+
+1. `python manage.py createsuperuser` で管理ユーザーを作成する
+2. 必要に応じて `python manage.py seed_knotly_master` を実行して `Corporate Admin` グループを作成する
+3. Django admin などで、対象ユーザーを `Corporate Admin` グループに所属させる
+4. `http://127.0.0.1:8000/accounts/login/` にアクセスする
+5. ログイン後、`/dashboard/` に遷移する
+
+主な URL:
+
+- `/accounts/login/` : 管理者ログイン
+- `/dashboard/` : Knotly 管理ダッシュボード
+- `/dashboard/pages/` : ページ管理一覧
+- `/dashboard/pages/new/` : 新規ページ作成
+
+### 2. Django 標準管理画面
+
+`/admin/` は Django 標準管理画面です。  
+これは開発者・システム管理者向けで、主に以下の用途を想定しています。
+
+- Category / Tag / Department などのマスタ管理
+- データ確認
+- 緊急時の補助的な修正
+
+通常のページ運用では、`/admin/` ではなく `/dashboard/` を使います。
+
 ## 主なURL
 
 ### 社員向け
@@ -145,6 +179,15 @@ python manage.py runserver
 ### Django Admin
 
 - `/admin/`
+
+## 画面の役割分離
+
+- `/` と `/pages/` 配下は閲覧者向けの public 画面です。
+- public 画面では `published` のページだけを表示し、`draft` / `private` / `needs_update` は表示しません。
+- `/dashboard/` 配下は Knotly サイト内のコーポレート管理者向け画面です。
+- 通常のページ作成・編集・プレビューは `/dashboard/` で行います。
+- `/admin/` は Django 標準管理画面であり、開発者・システム管理者向けのマスタ管理や緊急修正用です。
+- 通常運用でページ作成者に Django admin を使わせる設計にはしていません。
 
 ## ディレクトリ構成
 
@@ -203,6 +246,7 @@ Knotly では、次の方針を重視しています。
 
 - **構造化されたページ作成体験を優先する**
 - **通常のページ運用は Django admin ではなく独自 dashboard で行う**
+- **閲覧者向け public と、コーポレート管理者向け dashboard を明確に分ける**
 - **本文は Page に直接持たせすぎず、Block として管理する**
 - **Block.content は JSONField だが、UI では JSON を直接見せない**
 - **MVP では機能を広げすぎず、ページ作成から公開までの基本導線を磨く**

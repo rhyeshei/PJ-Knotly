@@ -1,3 +1,4 @@
+from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand
 
 from apps.knotly.models import BlockDefinition, Category, Department, Tag, TargetAudience
@@ -80,12 +81,16 @@ class Command(BaseCommand):
     help = 'Seed Knotly master data.'
 
     def handle(self, *args, **options):
+        self._seed_groups()
         self._seed_categories()
         self._seed_target_audiences()
         self._seed_departments()
         self._seed_tags()
         self._seed_block_definitions()
         self.stdout.write(self.style.SUCCESS('Knotly master data seeded successfully.'))
+
+    def _seed_groups(self):
+        Group.objects.get_or_create(name='Corporate Admin')
 
     def _seed_categories(self):
         for index, item in enumerate(CATEGORIES, start=1):

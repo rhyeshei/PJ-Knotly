@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Knotly | 管理者ログイン{% endblock %}
+
+{% block content %}
+<div class="auth-shell">
+    <div class="auth-card">
+        <div class="auth-card__header">
+            <p class="eyebrow">Knotly Admin</p>
+            <h1 class="section-title">管理者ログイン</h1>
+            <p class="page-description">コーポレート管理者向けのダッシュボードにアクセスします。</p>
+        </div>
+
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                    <p class="form-error">{{ error }}</p>
+                {% endfor %}
+            {% endif %}
+
+            <div class="form-field">
+                <label for="{{ form.username.id_for_label }}">ユーザー名</label>
+                {{ form.username }}
+                {% for error in form.username.errors %}
+                    <p class="form-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="form-field">
+                <label for="{{ form.password.id_for_label }}">パスワード</label>
+                {{ form.password }}
+                {% for error in form.password.errors %}
+                    <p class="form-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            {% if next %}
+                <input type="hidden" name="next" value="{{ next }}">
+            {% endif %}
+
+            <div class="form-actions">
+                <button class="button button-primary" type="submit">ログイン</button>
+                <a class="button button-secondary" href="{% url 'knotly:home' %}">公開画面へ戻る</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -105,6 +105,31 @@ textarea:focus {
   color: var(--text-sub);
 }
 
+.auth-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--bg-app);
+}
+
+.auth-card {
+  width: min(100%, 420px);
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fff;
+}
+
+.auth-card__header {
+  margin-bottom: 20px;
+}
+
+.auth-form {
+  display: grid;
+  gap: 16px;
+}
+
 .app {
   display: flex;
   min-height: 100vh;
@@ -112,7 +137,12 @@ textarea:focus {
 }
 
 .sidebar {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
   width: 292px;
+  height: 100vh;
+  overflow-y: auto;
   flex-shrink: 0;
   padding: 18px 14px;
   background: var(--bg-sidebar);
@@ -1026,7 +1056,10 @@ code {
   }
 
   .sidebar {
+    position: static;
     width: 100%;
+    height: auto;
+    overflow-y: visible;
     border-right: 0;
     border-bottom: 1px solid var(--border);
   }
