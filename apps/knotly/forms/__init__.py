@@ -8,7 +8,7 @@ from .block import (
     TextBlockForm,
     get_block_form_class,
 )
-from .page import PageForm
+from .page import PageForm, PageSetupForm
 
 __all__ = [
     'BaseBlockForm',
@@ -17,6 +17,7 @@ __all__ = [
     'LinksBlockForm',
     'ListBlockForm',
     'PageForm',
+    'PageSetupForm',
     'StepsBlockForm',
     'TextBlockForm',
     'get_block_form_class',

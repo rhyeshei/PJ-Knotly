@@ -4,160 +4,201 @@
 
 {% block dashboard_content %}
 <div class="workspace-topbar">
-    <div class="workspace-topbar__title">Page Detail</div>
+    <div class="page-title">
+        <span class="page-title-icon"></span>
+        <span>{{ page.title }}</span>
+        <span class="star">☆</span>
+    </div>
     <div class="workspace-topbar__meta">{{ page.get_status_display }}</div>
     <div class="workspace-topbar__actions">
-        <a class="button button-secondary" href="{% url 'knotly:page_preview' pk=page.pk %}">Preview</a>
-        <a class="button button-secondary" href="{% url 'knotly:block_add' page_pk=page.pk %}">Add Block</a>
+        <a class="button button-secondary" href="{% url 'knotly:page_preview' pk=page.pk %}">プレビュー</a>
     </div>
 </div>
 
 <section class="dashboard-page-header dashboard-page-header--tight">
     <div>
-        <p class="eyebrow">Page Editor</p>
-        <h1 class="page-title">{{ page.title }}</h1>
-        <p class="page-description">基本情報とブロック本文を、1つの詳細編集画面で連続して整えます。</p>
+        <p class="eyebrow">Block Builder</p>
+        <h1 class="page-title">左のパレットから構成を組み立てる</h1>
+        <p class="page-description">テンプレートの初期ブロックを編集しつつ、必要なブロックだけをクリック追加で組み立てます。</p>
     </div>
 </section>
 
-<form id="page-edit-form" method="post">
-    {% csrf_token %}
-    <div class="editor-workspace">
-        <section class="editor-content-pane">
-            <section class="editor-section editor-section--content">
-                <div class="section-header">
-                    <p class="eyebrow">Content</p>
-                    <h2 class="section-title">本文設定</h2>
-                </div>
-                <div class="editor-meta-stack">
-                    {% for field in page_form %}
-                        {% if field.name == "title" or field.name == "summary" or field.name == "primary_action" %}
-                            <div class="form-field">
-                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                                {{ field }}
-                                {% if field.help_text %}
-                                    <p class="form-help">{{ field.help_text }}</p>
-                                {% endif %}
-                                {% for error in field.errors %}
-                                    <p class="form-error">{{ error }}</p>
-                                {% endfor %}
+<div class="builder-workspace">
+    <aside class="builder-palette-pane">
+        <section class="editor-section">
+            <div class="section-header">
+                <p class="eyebrow">Palette</p>
+                <h2 class="section-title">ブロックパレット</h2>
+            </div>
+
+            <div class="block-palette">
+                {% for definition in definitions %}
+                    {% if definition.id in added_definition_ids %}
+                        <div class="block-palette-row block-palette-row--disabled" title="{{ definition.description|default:'' }}">
+                            <div class="block-palette-row__content">
+                                <span class="block-palette-name">{{ definition.label }}</span>
+                                <span class="block-palette-type">{{ definition.get_block_type_display }}</span>
                             </div>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-            </section>
+                            <span class="block-palette-status">追加済み</span>
+                        </div>
+                    {% else %}
+                        <form method="post" action="{% url 'knotly:block_add' page_pk=page.pk %}" class="block-palette-row-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="block_definition_id" value="{{ definition.id }}">
+                            <button type="submit" class="block-palette-button" title="{{ definition.description|default:'' }}">
+                                <span class="block-palette-name">{{ definition.label }}</span>
+                                <span class="block-palette-type">{{ definition.get_block_type_display }}</span>
+                            </button>
+                        </form>
+                    {% endif %}
+                {% empty %}
+                    <p class="empty-state">追加可能なブロックはありません。</p>
+                {% endfor %}
+            </div>
+        </section>
+    </aside>
 
-            <section class="editor-section editor-section--blocks">
-                <div class="section-header">
-                    <p class="eyebrow">Blocks</p>
-                    <h2 class="section-title">ブロック編集</h2>
-                </div>
-
-                <div class="block-editor-list block-editor-list--quiet">
-                {% for entry in block_entries %}
-                    <article class="block-editor-card">
-                        <header class="block-editor-card__header">
-                            <div class="block-editor-card__summary">
-                                <span class="block-editor-card__index">{{ entry.block.order|stringformat:"02d" }}</span>
-                                <div class="block-editor-card__summary-body">
-                                    <h2 class="card-title">{{ entry.block.title }}</h2>
-                                    <div class="block-editor-card__meta">
-                                        <span class="badge">{{ entry.block.block_definition.get_block_type_display }}</span>
-                                        {% if entry.block.is_required %}
-                                            <span class="badge">必須</span>
+    <div class="builder-editor-shell">
+        <form id="page-edit-form" method="post" class="builder-editor-form">
+            {% csrf_token %}
+            <div class="builder-editor-grid">
+                <section class="editor-content-pane">
+                    <section class="editor-section editor-section--content">
+                        <div class="section-header">
+                            <p class="eyebrow">Content</p>
+                            <h2 class="section-title">本文と導線</h2>
+                        </div>
+                        <div class="editor-meta-stack">
+                            {% for field in page_form %}
+                                {% if field.name == "title" or field.name == "summary" or field.name == "primary_action" %}
+                                    <div class="form-field">
+                                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                        {{ field }}
+                                        {% if field.help_text %}
+                                            <p class="form-help">{{ field.help_text }}</p>
                                         {% endif %}
+                                        {% for error in field.errors %}
+                                            <p class="form-error">{{ error }}</p>
+                                        {% endfor %}
                                     </div>
-                                    {% if entry.block.block_definition.description %}
-                                        <p class="block-editor-card__description">{{ entry.block.block_definition.description }}</p>
-                                    {% endif %}
-                                </div>
-                            </div>
-
-                            <div class="block-editor-card__actions">
-                                <button class="button button-quiet" type="submit" form="move-up-{{ entry.block.pk }}">上へ</button>
-                                <button class="button button-quiet" type="submit" form="move-down-{{ entry.block.pk }}">下へ</button>
-                                {% if not entry.block.is_required %}
-                                    <button class="button button-danger button-quiet" type="submit" form="delete-block-{{ entry.block.pk }}">削除</button>
                                 {% endif %}
-                            </div>
-                        </header>
-
-                        <div class="form-grid form-grid--editor">
-                            {% for field in entry.form %}
-                                <div class="form-field">
-                                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                                    {{ field }}
-                                    {% if field.help_text %}
-                                        <p class="form-help">{{ field.help_text }}</p>
-                                    {% endif %}
-                                    {% for error in field.errors %}
-                                        <p class="form-error">{{ error }}</p>
-                                    {% endfor %}
-                                </div>
                             {% endfor %}
                         </div>
-                    </article>
-                {% empty %}
-                    <p class="empty-state">表示中のブロックはありません。</p>
-                {% endfor %}
-                </div>
-            </section>
-        </section>
+                    </section>
 
-        <aside class="editor-sidebar-pane">
-            <section class="editor-section editor-section--form">
-                <div class="section-header">
-                    <p class="eyebrow">Page Metadata</p>
-                    <h2 class="section-title">基本情報</h2>
-                </div>
+                    <section class="editor-section editor-section--blocks">
+                        <div class="section-header">
+                            <p class="eyebrow">Selected Blocks</p>
+                            <h2 class="section-title">選択済みブロック</h2>
+                        </div>
 
-                <div class="editor-meta-stack">
-                    {% for field in page_form %}
-                        {% if field.name == "slug" or field.name == "page_type" or field.name == "status" or field.name == "urgency" or field.name == "category" or field.name == "owner_department" or field.name == "tags" or field.name == "target_audiences" %}
-                            <div class="form-field">
-                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                                {{ field }}
-                                {% if field.help_text %}
-                                    <p class="form-help">{{ field.help_text }}</p>
+                        <div class="block-editor-list block-editor-list--quiet">
+                        {% for entry in block_entries %}
+                            <article class="block-editor-card">
+                                <header class="block-editor-card__header">
+                                    <div class="block-editor-card__summary">
+                                        <span class="block-editor-card__index">{{ entry.block.order|stringformat:"02d" }}</span>
+                                        <div class="block-editor-card__summary-body">
+                                            <h2 class="card-title">{{ entry.block.title }}</h2>
+                                            <div class="block-editor-card__meta">
+                                                <span class="badge">{{ entry.block.block_definition.get_block_type_display }}</span>
+                                                {% if entry.block.is_required %}
+                                                    <span class="badge">必須</span>
+                                                {% endif %}
+                                            </div>
+                                            {% if entry.block.block_definition.description %}
+                                                <p class="block-editor-card__description">{{ entry.block.block_definition.description }}</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="block-editor-card__actions">
+                                        <button class="button button-quiet" type="submit" form="move-up-{{ entry.block.pk }}">上へ</button>
+                                        <button class="button button-quiet" type="submit" form="move-down-{{ entry.block.pk }}">下へ</button>
+                                        {% if not entry.block.is_required %}
+                                            <button class="button button-danger button-quiet" type="submit" form="delete-block-{{ entry.block.pk }}">削除</button>
+                                        {% endif %}
+                                    </div>
+                                </header>
+
+                                <div class="form-grid form-grid--editor">
+                                    {% for field in entry.form %}
+                                        <div class="form-field">
+                                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                            {{ field }}
+                                            {% if field.help_text %}
+                                                <p class="form-help">{{ field.help_text }}</p>
+                                            {% endif %}
+                                            {% for error in field.errors %}
+                                                <p class="form-error">{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </article>
+                        {% empty %}
+                            <p class="empty-state">まだブロックがありません。左のパレットから必要なブロックを追加してください。</p>
+                        {% endfor %}
+                        </div>
+                    </section>
+                </section>
+
+                <aside class="editor-sidebar-pane">
+                    <section class="editor-section editor-section--form">
+                        <div class="section-header">
+                            <p class="eyebrow">Page Metadata</p>
+                            <h2 class="section-title">ページ設定</h2>
+                        </div>
+
+                        <div class="editor-meta-stack">
+                            {% for field in page_form %}
+                                {% if field.name == "page_type" or field.name == "status" or field.name == "category" or field.name == "owner_department" or field.name == "target_audiences" or field.name == "tags" or field.name == "urgency" or field.name == "slug" %}
+                                    <div class="form-field">
+                                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                        {{ field }}
+                                        {% if field.help_text %}
+                                            <p class="form-help">{{ field.help_text }}</p>
+                                        {% endif %}
+                                        {% for error in field.errors %}
+                                            <p class="form-error">{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
                                 {% endif %}
-                                {% for error in field.errors %}
-                                    <p class="form-error">{{ error }}</p>
-                                {% endfor %}
-                            </div>
+                            {% endfor %}
+                        </div>
+
+                        {% if page_form.non_field_errors %}
+                            {% for error in page_form.non_field_errors %}
+                                <p class="form-error">{{ error }}</p>
+                            {% endfor %}
                         {% endif %}
-                    {% endfor %}
-                </div>
+                    </section>
 
-                {% if page_form.non_field_errors %}
-                    {% for error in page_form.non_field_errors %}
-                        <p class="form-error">{{ error }}</p>
-                    {% endfor %}
-                {% endif %}
-            </section>
+                    <section class="editor-section editor-section--meta">
+                        <div class="section-header">
+                            <p class="eyebrow">Record</p>
+                            <h2 class="section-title">更新情報</h2>
+                        </div>
+                        <div class="metadata-list">
+                            <div class="metadata-list__item">
+                                <span class="metadata-list__label">Updated At</span>
+                                <span class="metadata-list__value">{{ page.updated_at|date:"Y-m-d H:i" }}</span>
+                            </div>
+                            <div class="metadata-list__item">
+                                <span class="metadata-list__label">Published At</span>
+                                <span class="metadata-list__value">{{ page.published_at|date:"Y-m-d H:i"|default:"-" }}</span>
+                            </div>
+                        </div>
+                    </section>
+                </aside>
+            </div>
 
-            <section class="editor-section editor-section--meta">
-                <div class="section-header">
-                    <p class="eyebrow">Record</p>
-                    <h2 class="section-title">更新情報</h2>
-                </div>
-                <div class="metadata-list">
-                    <div class="metadata-list__item">
-                        <span class="metadata-list__label">Updated At</span>
-                        <span class="metadata-list__value">{{ page.updated_at|date:"Y-m-d H:i" }}</span>
-                    </div>
-                    <div class="metadata-list__item">
-                        <span class="metadata-list__label">Published At</span>
-                        <span class="metadata-list__value">{{ page.published_at|date:"Y-m-d H:i"|default:"-" }}</span>
-                    </div>
-                </div>
-            </section>
-        </aside>
+            <div class="sticky-save-bar sticky-save-bar--minimal">
+                <button class="button button-primary" type="submit">保存する</button>
+            </div>
+        </form>
     </div>
-    
-    <div class="sticky-save-bar sticky-save-bar--minimal">
-        <button class="button button-primary" type="submit">保存する</button>
-    </div>
-</form>
+</div>
 
 {% for entry in block_entries %}
     <form id="move-up-{{ entry.block.pk }}" method="post" action="{% url 'knotly:block_move_up' block_pk=entry.block.pk %}">

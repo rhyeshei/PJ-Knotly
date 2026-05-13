@@ -1,6 +1,8 @@
 from apps.knotly.models import Page
 
 
+BLANK_TEMPLATE_CHOICE = 'blank'
+
 DEFAULT_BLOCK_TEMPLATES = {
     Page.PageType.APPLICATION: [
         {'order': 1, 'key': 'summary', 'is_required': True},
@@ -32,8 +34,9 @@ DEFAULT_BLOCK_TEMPLATES = {
         {'order': 7, 'key': 'contact', 'is_required': True},
         {'order': 8, 'key': 'update_info', 'is_required': True},
     ],
+    BLANK_TEMPLATE_CHOICE: [],
 }
 
 
-def get_default_block_template(page_type):
-    return DEFAULT_BLOCK_TEMPLATES.get(page_type, [])
+def get_default_block_template(template_choice):
+    return DEFAULT_BLOCK_TEMPLATES.get(template_choice, [])

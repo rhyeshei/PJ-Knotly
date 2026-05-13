@@ -8,6 +8,7 @@ class Page(TimeStampedModel):
         APPLICATION = 'application', '申請方法'
         TROUBLE = 'trouble', 'トラブル対応'
         RULE = 'rule', '社内ルール'
+        CUSTOM = 'custom', '自由作成'
 
     class Status(models.TextChoices):
         DRAFT = 'draft', '下書き'

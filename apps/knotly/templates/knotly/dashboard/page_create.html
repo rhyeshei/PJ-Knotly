@@ -4,53 +4,92 @@
 
 {% block dashboard_content %}
 <div class="workspace-topbar">
-    <div class="workspace-topbar__title">New Page</div>
-    <div class="workspace-topbar__meta">Create record</div>
+    <div class="page-title">
+        <span class="page-title-icon"></span>
+        <span>ページ作成セットアップ</span>
+        <span class="star">☆</span>
+    </div>
+    <div class="workspace-topbar__meta">Step 1 of 2</div>
     <div class="workspace-topbar__actions">
-        <a class="button button-secondary" href="{% url 'knotly:page_manage' %}">Back</a>
+        <a class="button button-secondary" href="{% url 'knotly:page_manage' %}">一覧へ戻る</a>
     </div>
 </div>
 
 <section class="dashboard-page-header dashboard-page-header--tight">
     <div>
-        <p class="eyebrow">New Page</p>
-        <h1 class="page-title">ページ新規作成</h1>
-        <p class="page-description">先に基本情報を作成し、その後にブロック内容を編集します。</p>
+        <p class="eyebrow">Page Setup</p>
+        <h1 class="page-title">作成方式を選んで下書きを作る</h1>
+        <p class="page-description">テンプレートから始めるか、まっさらなページから構成を組み立てるかを先に選びます。</p>
     </div>
 </section>
 
-<form method="post">
-    {% csrf_token %}
-    <section class="editor-section editor-section--form">
-        <div class="section-header">
-            <p class="eyebrow">Metadata</p>
-            <h2 class="section-title">基本情報</h2>
-        </div>
-        <div class="editor-meta-stack">
-            {% for field in form %}
-                <div class="form-field">
-                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                    {{ field }}
-                    {% if field.help_text %}
-                        <p class="form-help">{{ field.help_text }}</p>
-                    {% endif %}
-                    {% for error in field.errors %}
-                        <p class="form-error">{{ error }}</p>
-                    {% endfor %}
+<div class="page-setup-layout">
+    <aside class="page-setup-aside">
+        <section class="editor-section">
+            <div class="section-header">
+                <p class="eyebrow">Flow</p>
+                <h2 class="section-title">新しい作成フロー</h2>
+            </div>
+            <div class="setup-step-list">
+                <div class="setup-step">
+                    <span class="setup-step__index">01</span>
+                    <div>
+                        <strong>作成方式を選ぶ</strong>
+                        <p>テンプレート 3 種類、またはまっさらな状態から開始できます。</p>
+                    </div>
                 </div>
-            {% endfor %}
-        </div>
+                <div class="setup-step">
+                    <span class="setup-step__index">02</span>
+                    <div>
+                        <strong>基本情報を入力する</strong>
+                        <p>カテゴリ、対象者、状況タグ、担当部署、緊急度を先に確定します。</p>
+                    </div>
+                </div>
+                <div class="setup-step">
+                    <span class="setup-step__index">03</span>
+                    <div>
+                        <strong>ビルダーで構成を整える</strong>
+                        <p>作成後は 3 ペインの編集画面で、左パレットからブロックを追加できます。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </aside>
 
-        {% if form.non_field_errors %}
-            {% for error in form.non_field_errors %}
-                <p class="form-error">{{ error }}</p>
-            {% endfor %}
-        {% endif %}
+    <form method="post" class="page-setup-form">
+        {% csrf_token %}
+        <section class="editor-section editor-section--form">
+            <div class="section-header">
+                <p class="eyebrow">Setup</p>
+                <h2 class="section-title">下書き作成</h2>
+            </div>
 
-        <div class="form-actions">
-            <button class="button button-primary" type="submit">作成して編集へ進む</button>
-            <a class="button button-secondary" href="{% url 'knotly:page_manage' %}">戻る</a>
-        </div>
-    </section>
-</form>
+            {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                    <p class="form-error">{{ error }}</p>
+                {% endfor %}
+            {% endif %}
+
+            <div class="setup-field-grid">
+                {% for field in form %}
+                    <div class="form-field {% if field.name == 'tags' or field.name == 'target_audiences' %}form-field--choices{% endif %}">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <p class="form-help">{{ field.help_text }}</p>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <p class="form-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="form-actions">
+                <button class="button button-primary" type="submit">下書きを作成してビルダーへ進む</button>
+                <a class="button button-secondary" href="{% url 'knotly:page_manage' %}">キャンセル</a>
+            </div>
+        </section>
+    </form>
+</div>
 {% endblock %}

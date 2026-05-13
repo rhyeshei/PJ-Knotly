@@ -5,9 +5,9 @@ from django.http import HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404, redirect, render
 
 from apps.knotly.decorators import knotly_admin_required
-from apps.knotly.forms import PageForm, get_block_form_class
+from apps.knotly.forms import PageForm, PageSetupForm, get_block_form_class
 from apps.knotly.models import Block, BlockDefinition, Category, Page
-from apps.knotly.services import create_page_with_default_blocks, get_default_content
+from apps.knotly.services import create_page_from_setup, get_default_content
 
 
 def build_block_forms(blocks, data=None):
@@ -26,6 +26,15 @@ def build_block_forms(blocks, data=None):
         )
 
     return block_entries
+
+
+def build_block_palette(page):
+    added_definition_ids = set(page.blocks.values_list('block_definition_id', flat=True))
+    definitions = BlockDefinition.objects.filter(is_active=True).order_by('sort_order', 'label')
+    return {
+        'definitions': definitions,
+        'added_definition_ids': added_definition_ids,
+    }
 
 
 @knotly_admin_required
@@ -85,20 +94,22 @@ def page_manage(request):
 @knotly_admin_required
 def page_create(request):
     if request.method == 'POST':
-        form = PageForm(request.POST)
+        form = PageSetupForm(request.POST)
         if form.is_valid():
             cleaned_data = form.cleaned_data.copy()
+            template_choice = cleaned_data.pop('template_choice')
             tags = cleaned_data.pop('tags', None)
             target_audiences = cleaned_data.pop('target_audiences', None)
-            page = create_page_with_default_blocks(
+            page = create_page_from_setup(
                 page_data=cleaned_data,
+                template_choice=template_choice,
                 tags=tags,
                 target_audiences=target_audiences,
             )
             messages.success(request, 'ページを作成しました。')
             return redirect('knotly:page_edit', pk=page.pk)
     else:
-        form = PageForm()
+        form = PageSetupForm()
 
     return render(
         request,
@@ -140,6 +151,7 @@ def page_edit(request, pk):
             'page': page,
             'page_form': page_form,
             'block_entries': block_entries,
+            **build_block_palette(page),
         },
     )
 
@@ -165,17 +177,29 @@ def page_preview(request, pk):
 @knotly_admin_required
 def block_add(request, page_pk):
     page = get_object_or_404(Page, pk=page_pk)
-    existing_definition_ids = list(
-        page.blocks.values_list('block_definition_id', flat=True)
-    )
-    available_block_definitions = BlockDefinition.objects.filter(is_active=True).exclude(
-        pk__in=existing_definition_ids
-    ).order_by('sort_order', 'label')
+    palette = build_block_palette(page)
+    existing_definition_ids = palette['added_definition_ids']
 
     if request.method == 'POST':
-        block_definition_id = request.POST.get('block_definition_id')
+        block_definition_id = request.POST.get('block_definition_id') or request.POST.get(
+            'block_definition'
+        )
+        if not block_definition_id:
+            messages.error(request, '追加するブロックが選択されていません。')
+            return redirect('knotly:page_edit', pk=page.pk)
+
+        try:
+            block_definition_id = int(block_definition_id)
+        except (TypeError, ValueError):
+            messages.error(request, '不正なブロック指定です。')
+            return redirect('knotly:page_edit', pk=page.pk)
+
+        if block_definition_id in existing_definition_ids:
+            messages.info(request, 'このブロックはすでに追加済みです。')
+            return redirect('knotly:page_edit', pk=page.pk)
+
         block_definition = get_object_or_404(
-            available_block_definitions,
+            BlockDefinition.objects.filter(is_active=True),
             pk=block_definition_id,
         )
         max_order = page.blocks.aggregate(max_order=Max('order')).get('max_order') or 0
@@ -196,7 +220,8 @@ def block_add(request, page_pk):
         'knotly/dashboard/block_add.html',
         {
             'page': page,
-            'block_definitions': available_block_definitions,
+            'block_definitions': palette['definitions'],
+            'added_definition_ids': palette['added_definition_ids'],
         },
     )
 

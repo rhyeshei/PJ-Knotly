@@ -4,48 +4,49 @@
 
 {% block dashboard_content %}
 <div class="workspace-topbar">
-    <div class="workspace-topbar__title">Add Block</div>
-    <div class="workspace-topbar__meta">{{ block_definitions|length }} available</div>
+    <div class="page-title">
+        <span class="page-title-icon"></span>
+        <span>ブロック追加</span>
+        <span class="star">☆</span>
+    </div>
+    <div class="workspace-topbar__meta">{{ block_definitions|length }} definitions</div>
     <div class="workspace-topbar__actions">
-        <a class="button button-secondary" href="{% url 'knotly:page_edit' pk=page.pk %}">Back to Edit</a>
+        <a class="button button-secondary" href="{% url 'knotly:page_edit' pk=page.pk %}">編集へ戻る</a>
     </div>
 </div>
 
 <section class="dashboard-page-header dashboard-page-header--tight">
     <div>
-        <p class="eyebrow">Add Block</p>
-        <h1 class="page-title">ブロック追加</h1>
-        <p class="page-description">{{ page.title }} に追加する補助ブロックを選択します。</p>
+        <p class="eyebrow">Palette</p>
+        <h1 class="page-title">{{ page.title }} にブロックを追加</h1>
+        <p class="page-description">編集画面左ペインと同じクリック追加型のパレットです。</p>
     </div>
 </section>
 
 <section class="list-section list-section--flat">
-    <header class="list-section__header">
-        <div>
-            <p class="eyebrow">Available Blocks</p>
-            <h2 class="section-title">追加可能なブロック</h2>
-        </div>
-    </header>
-
-    <div class="block-definition-grid block-definition-grid--list">
-    {% for definition in block_definitions %}
-        <article class="block-definition-card">
-            <div class="block-definition-card__type">
-                <span class="badge">{{ definition.get_block_type_display }}</span>
-            </div>
-            <div class="block-definition-card__body">
-                <h2 class="card-title">{{ definition.label }}</h2>
-                <p>{{ definition.description|default:"このブロックに説明はありません。" }}</p>
-            </div>
-            <form class="block-definition-card__action" method="post">
-                {% csrf_token %}
-                <input type="hidden" name="block_definition_id" value="{{ definition.id }}">
-                <button class="button button-primary" type="submit">追加する</button>
-            </form>
-        </article>
-    {% empty %}
-        <p class="empty-state">追加できるブロックはありません。</p>
-    {% endfor %}
+    <div class="block-palette block-palette--full">
+        {% for definition in block_definitions %}
+            {% if definition.id in added_definition_ids %}
+                <div class="block-palette-row block-palette-row--disabled" title="{{ definition.description|default:'' }}">
+                    <div class="block-palette-row__content">
+                        <span class="block-palette-name">{{ definition.label }}</span>
+                        <span class="block-palette-type">{{ definition.get_block_type_display }}</span>
+                    </div>
+                    <span class="block-palette-status">追加済み</span>
+                </div>
+            {% else %}
+                <form method="post" class="block-palette-row-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="block_definition_id" value="{{ definition.id }}">
+                    <button type="submit" class="block-palette-button" title="{{ definition.description|default:'' }}">
+                        <span class="block-palette-name">{{ definition.label }}</span>
+                        <span class="block-palette-type">{{ definition.get_block_type_display }}</span>
+                    </button>
+                </form>
+            {% endif %}
+        {% empty %}
+            <p class="empty-state">追加可能なブロックはありません。</p>
+        {% endfor %}
     </div>
 </section>
 {% endblock %}
